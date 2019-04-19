@@ -1,6 +1,6 @@
-#include <boost/asio.hpp>
+#include <asio.hpp>
 
 int main(int argc, char *argv[]) {
-    boost::asio::io_service service;
+    asio::io_service service;
     return 0;
 }

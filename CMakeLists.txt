@@ -1,8 +1,17 @@
 cmake_minimum_required(VERSION 3.0)
 
 project(SocketAsio)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DBOOST_ASIO_STANDALONE -std=c99")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_ASIO_STANDALONE -std=c++11")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DASIO_STANDALONE -std=c99")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DASIO_STANDALONE -std=c++11")
+include_directories(
+    asio/asio/include
+)
+
+if (WIN32)
+    link_libraries(
+        ws2_32
+    )
+endif()
 
 # Options
 option(TARGET_WIN10 "Build For Windows 10" ON)
@@ -21,10 +30,4 @@ endif()
 add_executable(
     test_asio
     test/test_asio.cpp
-)
-
-target_include_directories(
-    test_asio
-    PRIVATE
-    asio/include
 )
