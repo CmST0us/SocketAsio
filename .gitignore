@@ -36,7 +36,7 @@
 # CMake
 build
 */CMakeCache.txt
-
+CMakeLists.txt.user
 # Visual Studio
 .vs
 CMakeSettings.json
