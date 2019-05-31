@@ -36,7 +36,7 @@ public:
         }
     };
 
-    ~Endpoint() {};
+    ~Endpoint() = default;
 
     std::string getFirstEndpointIp() const {
         return getFirstEndpoint().address().to_string();
@@ -61,8 +61,6 @@ public:
     decltype(_endpoints) getEndpoints() const {
         return _endpoints;
     }
-
-
 };
     typedef Endpoint<asio::ip::tcp> TCPEndpoint;
     typedef Endpoint<asio::ip::udp> UDPEndpoint;
