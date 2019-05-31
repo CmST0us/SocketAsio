@@ -35,12 +35,10 @@ enum class DataType {
     Packet
 };
 
-// [TODO] 写函数需要异步传递数据，需要一个std::shared_ptr<utils::Buffer>
 class ICommunicator: public utils::IAsync {
 public:
     using ReadHandler = std::function<void(std::error_code, asio::buffer data)>;
     using WriteHandler = std::function<void(std::error_code, std::size_t length)>;
-//    using CommunicatorEventHandler = std::function<void(ICommunicator *, CommunicatorEvent event)>;
 
     virtual ~ICommunicator() = default;
     virtual void read(asio::buffer data, ReadHandler handler) = 0;
