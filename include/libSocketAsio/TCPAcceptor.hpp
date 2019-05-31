@@ -12,11 +12,6 @@
 
 namespace socketkit {
 
-enum class TCPAcceptorEvent {
-    CanAccept,
-
-    Error
-};
 
 class TCPAcceptor final : public IAsync {
 public:
@@ -29,7 +24,7 @@ public:
 
     using AcceptHandler = std::function<void(std::error_code ec, int s /*replace with tcp socket*/)>;
 
-    void accept(AcceptHandler handler);
+    void accept(const AcceptHandler& handler);
 
 private:
     asio::io_context& _context;

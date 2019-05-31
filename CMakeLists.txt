@@ -39,5 +39,6 @@ add_executable(
     test_asio
     test/test_asio.cpp
     src/TCPAcceptor.cpp
+    src/TCPConnector.cpp
 )
 target_include_directories(test_asio PRIVATE include/libSocketAsio)

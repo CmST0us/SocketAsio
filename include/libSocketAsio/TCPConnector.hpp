@@ -4,44 +4,34 @@
 
 #pragma once
 
-#include "SocketKit.hpp"
-#include "CommunicatorInterface.hpp"
+#include <asio.hpp>
+#include "AsyncInterface.hpp"
 
 namespace socketkit {
 
-enum class TCPConnectorEvent {
-    Connected,
-
-    Timeout,
-    Errored
-};
-
-class TCPConnector final : public utils::IAsync {
+class TCPConnector final : public IAsync {
 
 public:
-    TCPConnector();
-    virtual ~TCPConnector();
-    virtual utils::Runloop *getRunloop() override;
+    explicit TCPConnector(asio::io_context& context) ;
+    virtual ~TCPConnector() override;
+    virtual asio::io_context& ioContext() override;
 
-    void connect(std::shared_ptr<Endpoint> endpoint);
+    TCPConnector(const TCPConnector&) = delete;
+    TCPConnector& operator=(const TCPConnector&) = delete;
 
 public:
-    int mTimeoutSecond{5};  //单次连接超时时间
-    int mRetrySecond{2};    //失败重连时间
-    int mRetryTimes{3};     //重试次数
+//    int mTimeoutSecond{5};  //单次连接超时时间
+//    int mRetrySecond{2};    //失败重连时间
+//    int mRetryTimes{3};     //重试次数
 
-    using TCPConnectorEventHandler = std::function<void(TCPConnector *, TCPConnectorEvent, SocketFd socket)>;
-    TCPConnectorEventHandler mEventHandler;
+    using TCPConnectorHandler = std::function<void(std::error_code ec, asio::ip::tcp::socket& socket)>;
+
+    void connect(const TCPEndpoint& endpoint, const TCPConnectorHandler& handler);
+    void connect(const std::string& domain, const std::string& port, const TCPConnectorHandler& handler);
 
 private:
-    SocketFd _socket{(SocketFd)-1};
-    std::unique_ptr<utils::Runloop> _runloop;
-    CommunicatorStateMachine _stateMachine;
-    std::shared_ptr<Endpoint> _endpoint{nullptr};
-
-    void setupRunloop();
-    void initSocket();
-    void closeSocket();
+    asio::io_context& _context;
+    asio::ip::tcp::socket _socket;
 };
 
 };
