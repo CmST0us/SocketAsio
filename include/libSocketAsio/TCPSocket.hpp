@@ -5,51 +5,56 @@
 #pragma once
 
 #include <memory>
-
+#include <list>
+#include <asio.hpp>
 #include "TCPConnector.hpp"
 #include "CommunicatorInterface.hpp"
-#include "SocketKit.hpp"
 
 namespace socketkit {
 
-class TCPSocket final : public IRemoteCommunicator,
-                        public ILocalCommunicator {
+class TCPSocket final : public std::enable_shared_from_this<TCPSocket>,
+                         public IRemoteCommunicator,
+                         public ILocalCommunicator {
 
 public:
-    virtual utils::Runloop* getRunloop() override;
-    virtual void read(DataEventHandler handler) override;
-    virtual void write(std::shared_ptr<utils::Data> data) override;
+    ErrorHandler mErrorHandler{nullptr};
+    ErrorHandler mConnectHandler{nullptr};
+    ReadHandler mReadHandler{nullptr};
+    WriteHandler mWriteHandler{nullptr};
+
+    virtual asio::io_context& ioContext() override;
+    virtual void read() override;
+    virtual void write(const asio::const_buffer& data) override;
+    virtual void error(const std::error_code& ec) override;
     virtual void closeWrite() override;
     virtual void close() override;
+
     virtual const CommunicatorStateMachine& stateMachine() const override;
     virtual DataType communicatorDataType() const override;
-    const SocketFd getSocketFd() const;
 
     // Remote
-    TCPSocket();
-    virtual void connect(std::shared_ptr<Endpoint> endpoint) override;
-    virtual const Endpoint *connectingEndpoint() const override;
+    TCPSocket(asio::io_context& context, const TCPEndpoint& endpoint);
+    virtual void connect() override;
 
     // Local
-    TCPSocket(SocketFd socket, std::shared_ptr<Endpoint>);
-
+    TCPSocket(asio::io_context& context, asio::ip::tcp::socket socket);
     virtual void open() override;
     virtual void continueFinished() override;
 
     virtual ~TCPSocket();
 
-public:
-    CommunicatorEventHandler mEventHandler;
 private:
-    SocketFd _socket{(SocketFd)-1};
-    std::unique_ptr<TCPConnector> _connector{nullptr};
+    asio::io_context& _context;
+    asio::ip::tcp::socket _socket;
+    std::unique_ptr<TCPConnector> _connector;
 
-    std::shared_ptr<Endpoint> _endpoint;
+    TCPEndpoint _endpoint;
     CommunicatorStateMachine _stateMachine;
-    std::unique_ptr<utils::Runloop> _runloop;
 
-    void setupRunloop();
-    void closeSocket();
+    std::array<char, 8192> _buffer;
+    std::list<asio::const_buffer> _writeQueue;
+
+    void asyncWrite();
 };
 
 };

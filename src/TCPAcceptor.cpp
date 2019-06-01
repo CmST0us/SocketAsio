@@ -22,11 +22,14 @@ asio::io_context& TCPAcceptor::ioContext() {
 }
 
 void TCPAcceptor::accept(const AcceptHandler& handler) {
-    _acceptor.async_accept(_context, [this, handler](std::error_code ec, tcp::socket socket) {
+    auto self(shared_from_this());
+    _acceptor.async_accept(_context, [self, handler](const std::error_code& ec, tcp::socket socket) {
         if (!ec) {
-            std::cout<<"[TCPAcceptor]: Accept socket"<<std::endl;
-
+            auto client = std::make_shared<TCPSocket>(socket.get_io_context(), std::move(socket));
+            handler(ec, client);
+            self->accept(handler);
+        } else {
+           self->_acceptor.close();
         }
-        this->accept(handler);
     });
 }

@@ -3,9 +3,9 @@
 
 using namespace socketkit;
 
-TCPConnector::TCPConnector(asio::io_context& context)
+TCPConnector::TCPConnector(asio::io_context& context, asio::ip::tcp::socket& socket)
     : _context(context),
-    _socket(_context) {
+    _socket(socket) {
 
 }
 
@@ -17,17 +17,15 @@ asio::io_context& TCPConnector::ioContext() {
 }
 
 void TCPConnector::connect(const TCPEndpoint &endpoint,
-        const TCPConnectorHandler& handler) {
-   _socket.async_connect(endpoint.getFirstEndpoint(), [this, handler](std::error_code ec) {
-       if (handler != nullptr) {
-           handler(ec, _socket);
-       }
+        const ICommunicator::ErrorHandler& handler) {
+   asio::async_connect(_socket, endpoint.getEndpoints(), [handler](const std::error_code& ec, const asio::ip::tcp::endpoint& ep) {
+       handler(ec);
    });
 }
 
 void TCPConnector::connect(const std::string& domain,
         const std::string& port,
-        const TCPConnectorHandler& handler) {
+        const ICommunicator::ErrorHandler& handler) {
     TCPEndpoint ep(_context, domain, port);
     this->connect(ep, handler);
 }

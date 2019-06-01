@@ -9,11 +9,12 @@
 #include <asio/ip/tcp.hpp>
 
 #include "AsyncInterface.hpp"
+#include "TCPSocket.hpp"
 
 namespace socketkit {
 
 
-class TCPAcceptor final : public IAsync {
+class TCPAcceptor final : public std::enable_shared_from_this<TCPAcceptor>, public IAsync {
 public:
     TCPAcceptor(asio::io_context& context, short port);
     virtual ~TCPAcceptor();
@@ -22,7 +23,7 @@ public:
     TCPAcceptor(const TCPAcceptor&) = delete;
     TCPAcceptor& operator=(const TCPAcceptor&) = delete;
 
-    using AcceptHandler = std::function<void(std::error_code ec, int s /*replace with tcp socket*/)>;
+    using AcceptHandler = std::function<void(const std::error_code& ec, std::shared_ptr<TCPSocket> socket)>;
 
     void accept(const AcceptHandler& handler);
 

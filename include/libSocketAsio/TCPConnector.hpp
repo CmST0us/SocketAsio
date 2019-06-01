@@ -5,14 +5,15 @@
 #pragma once
 
 #include <asio.hpp>
+#include "Endpoint.hpp"
 #include "AsyncInterface.hpp"
-
+#include "CommunicatorInterface.hpp"
 namespace socketkit {
 
 class TCPConnector final : public IAsync {
 
 public:
-    explicit TCPConnector(asio::io_context& context) ;
+    explicit TCPConnector(asio::io_context& context, asio::ip::tcp::socket& socket) ;
     virtual ~TCPConnector() override;
     virtual asio::io_context& ioContext() override;
 
@@ -24,14 +25,12 @@ public:
 //    int mRetrySecond{2};    //失败重连时间
 //    int mRetryTimes{3};     //重试次数
 
-    using TCPConnectorHandler = std::function<void(std::error_code ec, asio::ip::tcp::socket& socket)>;
-
-    void connect(const TCPEndpoint& endpoint, const TCPConnectorHandler& handler);
-    void connect(const std::string& domain, const std::string& port, const TCPConnectorHandler& handler);
+    void connect(const TCPEndpoint& endpoint, const ICommunicator::ErrorHandler& handler);
+    void connect(const std::string& domain, const std::string& port, const ICommunicator::ErrorHandler& handler);
 
 private:
     asio::io_context& _context;
-    asio::ip::tcp::socket _socket;
+    asio::ip::tcp::socket& _socket;
 };
 
 };

@@ -12,37 +12,28 @@
 #include <memory>
 #include <asio.hpp>
 
-#include "SocketKit.hpp"
 #include "AsyncInterface.hpp"
 #include "CommunicatorStateMachine.hpp"
-
-typedef unsigned char uchar;
+#include "Endpoint.hpp"
 
 namespace socketkit
 {
-
-enum class CommunicatorEvent {
-    None,
-    OpenCompleted,
-    ErrorOccurred,
-    EndEncountered,
-    HasBytesAvailable,
-    HasSpaceAvailable,
-};
 
 enum class DataType {
     Stream,
     Packet
 };
 
-class ICommunicator: public utils::IAsync {
+class ICommunicator: public IAsync {
 public:
-    using ReadHandler = std::function<void(std::error_code, asio::buffer data)>;
-    using WriteHandler = std::function<void(std::error_code, std::size_t length)>;
+    using ReadHandler = std::function<void(const std::error_code&, const asio::const_buffer& data)>;
+    using WriteHandler = std::function<void(const std::error_code&, std::size_t length)>;
+    using ErrorHandler = std::function<void(const std::error_code&)>;
 
     virtual ~ICommunicator() = default;
-    virtual void read(asio::buffer data, ReadHandler handler) = 0;
-    virtual void write(asio::buffer data, WriteHandler handler) = 0;
+    virtual void read() = 0;
+    virtual void write(const asio::const_buffer& data) = 0;
+    virtual void error(const std::error_code& ec) = 0;
     virtual void closeWrite() = 0;
     virtual void close() = 0;
 
@@ -53,9 +44,7 @@ public:
 class IRemoteCommunicator : public ICommunicator {
 public:
     virtual ~IRemoteCommunicator() = default;
-
-    virtual void connect(std::shared_ptr<Endpoint>) = 0;
-    virtual const Endpoint& connectingEndpoint() const = 0;
+    virtual void connect() = 0;
 };
 
 class ILocalCommunicator : public ICommunicator {

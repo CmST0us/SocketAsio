@@ -14,52 +14,52 @@ template <typename InternetProtocol>
 class Endpoint {
 private:
     asio::io_context& _context;
-    asio::ip::basic_resolver<InternetProtocol> _resolver;
     asio::ip::basic_resolver_results<InternetProtocol> _endpoints;
-    std::string _endpointDomain{"localhost"};
-    std::string _endpointServiceName{"0"};
+    asio::ip::basic_endpoint<InternetProtocol> _endpoint;
 
 
-    void resolve() {
-        _endpoints = _resolver.resolve(_endpointDomain, _endpointServiceName);
+    void resolve(const std::string& domain, const std::string& service) {
+        asio::ip::basic_resolver<InternetProtocol> resolver(_context);
+        _endpoints = resolver.resolve(domain, service);
+        _endpoint = getFirstEndpoint();
     }
 
 public:
 
     Endpoint(asio::io_context& context, const std::string& domain, const std::string& service, bool shouldResolve = true)
-        :   _endpointDomain{domain},
-        _endpointServiceName{service},
-        _context(context),
-        _resolver(_context) {
+        : _context(context) {
         if (shouldResolve) {
-            resolve();
+            resolve(domain, service);
         }
     };
+
+    explicit Endpoint(asio::io_context& context, asio::ip::basic_endpoint<InternetProtocol> endpoint)
+        : _endpoint(endpoint),
+        _context(context) {
+
+    }
 
     ~Endpoint() = default;
 
     std::string getFirstEndpointIp() const {
-        return getFirstEndpoint().address().to_string();
-    };
-
-    std::string getEndpointDomain() const {
-        return _endpointDomain;
-    };
-
-    std::string getFirstEndpointServiceName() const {
-        return _endpoints->service_name();
+        return _endpoint.address().to_string();
     };
 
     short getFirstEndpointPort() const {
-        return getFirstEndpoint().port();
+        return _endpoint.port();
     }
 
-    asio::ip::basic_endpoint<InternetProtocol> getFirstEndpoint() const {
-        return _endpoints->endpoint();
+    decltype(_endpoint) getEndpoint() const {
+        return _endpoint;
     }
 
     decltype(_endpoints) getEndpoints() const {
         return _endpoints;
+    }
+
+private:
+    asio::ip::basic_endpoint<InternetProtocol> getFirstEndpoint() const {
+        return _endpoints->endpoint();
     }
 };
     typedef Endpoint<asio::ip::tcp> TCPEndpoint;
