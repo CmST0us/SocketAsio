@@ -29,7 +29,6 @@ public:
     virtual void closeWrite() override;
     virtual void close() override;
 
-    virtual const CommunicatorStateMachine& stateMachine() const override;
     virtual DataType communicatorDataType() const override;
 
     // Remote
@@ -49,7 +48,6 @@ private:
     std::unique_ptr<TCPConnector> _connector;
 
     TCPEndpoint _endpoint;
-    CommunicatorStateMachine _stateMachine;
 
     std::array<char, 8192> _buffer;
     std::list<asio::const_buffer> _writeQueue;

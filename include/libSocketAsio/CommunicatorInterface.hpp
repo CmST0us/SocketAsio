@@ -13,7 +13,6 @@
 #include <asio.hpp>
 
 #include "AsyncInterface.hpp"
-#include "CommunicatorStateMachine.hpp"
 #include "Endpoint.hpp"
 
 namespace socketkit
@@ -37,7 +36,6 @@ public:
     virtual void closeWrite() = 0;
     virtual void close() = 0;
 
-    virtual const CommunicatorStateMachine& stateMachine() const = 0;
     virtual DataType communicatorDataType() const = 0;
 };
 

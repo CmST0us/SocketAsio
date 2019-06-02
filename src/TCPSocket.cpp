@@ -4,20 +4,19 @@
 using namespace socketkit;
 
 TCPSocket::TCPSocket(asio::io_context& context, const TCPEndpoint& endpoint)
-    : _stateMachine(CommunicatorType::Remote),
-    _context(context),
+    : _context(context),
     _endpoint(endpoint),
     _socket(_context),
-    _connector(new TCPConnector(_context, _socket)) {
-
+    _connector(new TCPConnector(_context, _socket)),
+    _buffer() {
 
 }
 
 TCPSocket::TCPSocket(asio::io_context& context, asio::ip::tcp::socket socket)
-    : _stateMachine(CommunicatorType::Local),
-    _context(context),
+    : _context(context),
     _socket(std::move(socket)),
-    _endpoint(_context, _socket.remote_endpoint()) {
+    _endpoint(_context, _socket.remote_endpoint()),
+    _buffer() {
 
 }
 
@@ -90,9 +89,6 @@ void TCPSocket::close() {
     _socket.close();
 }
 
-const CommunicatorStateMachine& TCPSocket::stateMachine() const {
-    return _stateMachine;
-}
 
 DataType TCPSocket::communicatorDataType() const {
     return DataType::Stream;
