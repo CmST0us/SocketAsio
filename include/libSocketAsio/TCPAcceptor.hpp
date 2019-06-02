@@ -16,7 +16,7 @@ namespace socketkit {
 
 class TCPAcceptor final : public std::enable_shared_from_this<TCPAcceptor>, public IAsync {
 public:
-    TCPAcceptor(asio::io_context& context, short port);
+    TCPAcceptor(asio::io_context& context, unsigned short port);
     virtual ~TCPAcceptor();
     virtual asio::io_context& ioContext() override;
 

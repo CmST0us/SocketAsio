@@ -42,5 +42,6 @@ add_executable(
     src/TCPAcceptor.cpp
     src/TCPConnector.cpp
     src/TCPSocket.cpp
+    src/UDPSocket.cpp
 )
 target_include_directories(test_asio PRIVATE include/libSocketAsio)

@@ -4,6 +4,7 @@
 #include "Endpoint.hpp"
 #include "TCPSocket.hpp"
 #include "TCPAcceptor.hpp"
+#include "UDPSocket.hpp"
 void test_connect() {
     asio::io_context context;
     std::shared_ptr<socketkit::TCPSocket> socket(new socketkit::TCPSocket(context, socketkit::TCPEndpoint(context, "127.0.0.1", "12002")));
@@ -43,8 +44,23 @@ void test_accept() {
     context.run();
 }
 
+void test_udp() {
+    asio::io_context context;
+    auto udp = std::make_shared<socketkit::UDPSocket>(context, socketkit::UDPEndpoint(context, "127.0.0.1", "12005"), 12007);
+    udp->mReadHandler = [udp](const std::error_code& ec, const asio::const_buffer& data) {
+        udp->write(data);
+    };
+
+    udp->mErrorHandler = [udp](const std::error_code& ec) {
+        std::cout<<"error: "<<ec.message()<<std::endl;
+    };
+    udp->connect();
+    udp->read();
+    context.run();
+}
+
 int main(int argc, char *argv[]) {
-    test_accept();
+    test_udp();
     return 0;
 
 }

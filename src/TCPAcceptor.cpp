@@ -7,7 +7,7 @@
 using namespace socketkit;
 using namespace asio::ip;
 
-TCPAcceptor::TCPAcceptor(asio::io_context &context, short port)
+TCPAcceptor::TCPAcceptor(asio::io_context &context, unsigned short port)
     : _context(context),
     _acceptor(_context, tcp::endpoint(tcp::v4(), port)) {
 
